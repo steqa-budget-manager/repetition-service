@@ -2,9 +2,7 @@ package ru.steqa.repetitionservice.grpc;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import ru.steqa.grpc.RepetitionServiceGrpc;
-import ru.steqa.grpc.AddRuleResponse;
-import ru.steqa.grpc.RepetitionRule;
+import ru.steqa.grpc.*;
 import ru.steqa.repetitionservice.scheme.rabbit.RepetitionMode;
 import ru.steqa.repetitionservice.scheme.rabbit.TransactionType;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalSecondRepetition;
@@ -27,7 +25,7 @@ public class GrpcServerService extends RepetitionServiceGrpc.RepetitionServiceIm
     }
 
     @Override
-    public void addRule(RepetitionRule request, StreamObserver<AddRuleResponse> responseObserver) {
+    public void addRule(AddRuleRequest request, StreamObserver<RuleIdResponse> responseObserver) {
         String mode = request.getMode().name();
         Long userId = request.getUserId();
         Long transactionId = request.getTransactionId();
@@ -49,9 +47,18 @@ public class GrpcServerService extends RepetitionServiceGrpc.RepetitionServiceIm
             taskProducer.sendTaskAtTime(repetition.id, nextExecution);
         }
 
-        AddRuleResponse response = AddRuleResponse.newBuilder()
-                .setStatus(true)
+        RuleIdResponse response = RuleIdResponse.newBuilder()
                 .setRuleId(addedRuleId)
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    public void deleteRule(DeleteRuleRequest request, StreamObserver<StatusResponse> responseObserver) {
+        repetitionRuleService.updateRepetitionRuleDeleted(request.getRuleId(), true);
+
+        StatusResponse response = StatusResponse.newBuilder()
+                .setStatus(true)
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();

@@ -5,10 +5,11 @@ option java_outer_classname = "RepetitionServiceProto";
 option java_multiple_files = true;
 
 service RepetitionService {
-  rpc AddRule(RepetitionRule) returns (AddRuleResponse);
+  rpc AddRule(AddRuleRequest) returns (RuleIdResponse);
+  rpc DeleteRule(DeleteRuleRequest) returns (StatusResponse);
 }
 
-message RepetitionRule {
+message AddRuleRequest {
   Mode mode = 1;
   Type transaction_type = 2;
   int64 transaction_id = 3;
@@ -43,7 +44,14 @@ enum Type {
   DEPOSIT = 1;
 }
 
-message AddRuleResponse {
+message DeleteRuleRequest {
+  string rule_id = 1;
+}
+
+message RuleIdResponse {
+  string rule_id = 1;
+}
+
+message StatusResponse {
   bool status = 1;
-  string rule_id = 2;
 }

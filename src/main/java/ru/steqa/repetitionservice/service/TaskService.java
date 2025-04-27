@@ -2,9 +2,7 @@ package ru.steqa.repetitionservice.service;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import ru.steqa.repetitionservice.exception.RepetitionRuleNotFound;
 import ru.steqa.repetitionservice.grpc.GrpcClientService;
-import ru.steqa.repetitionservice.repository.IRepetitionRuleRepository;
 import ru.steqa.repetitionservice.scheme.rabbit.BaseRepetitionRule;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedMonthRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedYearRepetition;
@@ -17,20 +15,24 @@ import java.time.LocalDateTime;
 
 @Service
 public class TaskService implements ITaskService {
-    private final IRepetitionRuleRepository repetitionRuleRepository;
+    private final IRepetitionRuleService repetitionRuleService;
     private final TaskProducer taskProducer;
     private final GrpcClientService grpcClientService;
 
-    public TaskService(IRepetitionRuleRepository repetitionRuleRepository, TaskProducer taskProducer, GrpcClientService grpcClientService) {
-        this.repetitionRuleRepository = repetitionRuleRepository;
+    public TaskService(IRepetitionRuleService repetitionRuleService, TaskProducer taskProducer, GrpcClientService grpcClientService) {
+        this.repetitionRuleService = repetitionRuleService;
         this.taskProducer = taskProducer;
         this.grpcClientService = grpcClientService;
     }
 
     @Async
     public void executeTask(String repetitionRuleId) {
-        BaseRepetitionRule rule = repetitionRuleRepository.findById(repetitionRuleId)
-                .orElseThrow(RepetitionRuleNotFound::new);
+        BaseRepetitionRule rule = repetitionRuleService.getRepetitionRuleById(repetitionRuleId);
+
+        if (rule.deleted) {
+            repetitionRuleService.deleteRepetitionRule(repetitionRuleId);
+            return;
+        }
 
         if (rule instanceof FixedMonthRepetition) {
 
@@ -45,13 +47,13 @@ public class TaskService implements ITaskService {
 
     @Async
     public void handleIntervalSecondRepetition(IntervalSecondRepetition repetitionRule) {
+        LocalDateTime nextExecution = repetitionRule.nextExecution;
         var now = LocalDateTime.now(Clock.systemUTC());
-        while (repetitionRule.nextExecution.isBefore(now) || repetitionRule.nextExecution.isEqual(now)) {
-            repetitionRule.nextExecution = repetitionRule.nextExecution.plusSeconds(repetitionRule.seconds);
+        while (nextExecution.isBefore(now) || nextExecution.isEqual(now)) {
+            nextExecution = nextExecution.plusSeconds(repetitionRule.seconds);
             grpcClientService.addTransaction(repetitionRule.userId, repetitionRule.transactionId);
         }
-        repetitionRuleRepository.save(repetitionRule);
-
-        taskProducer.sendTaskAtTime(repetitionRule.id, repetitionRule.nextExecution);
+        BaseRepetitionRule updatedRepetitionRule = repetitionRuleService.updateRepetitionRuleNextExecution(repetitionRule.id, nextExecution);
+        taskProducer.sendTaskAtTime(updatedRepetitionRule.id, updatedRepetitionRule.nextExecution);
     }
 }

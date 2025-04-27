@@ -14,6 +14,7 @@ public class BaseRepetitionRule {
     public TransactionType transactionType;
     public LocalDateTime nextExecution;
     public RepetitionMode mode;
+    public boolean deleted;
 
     public BaseRepetitionRule(Long userId, Long transactionId, TransactionType transactionType,
                               LocalDateTime nextExecution, RepetitionMode mode) {
@@ -22,5 +23,6 @@ public class BaseRepetitionRule {
         this.transactionType = transactionType;
         this.nextExecution = nextExecution;
         this.mode = mode;
+        this.deleted = false;
     }
 }
