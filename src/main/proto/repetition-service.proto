@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option java_package = "ru.steqa.grpc";
+option java_outer_classname = "RepetitionServiceProto";
+option java_multiple_files = true;
+
+service RepetitionService {
+  rpc AddRule(RepetitionRule) returns (AddRuleResponse);
+}
+
+message RepetitionRule {
+  Mode mode = 1;
+  Type transaction_type = 2;
+  int64 transaction_id = 3;
+  int64 next_execution = 4;
+  int64 user_id = 5;
+
+  oneof schedule {
+    FixedSchedule fixed = 6;
+    IntervalSchedule interval = 7;
+  }
+}
+
+message FixedSchedule {
+  int32 day = 2;
+  int32 month = 3;
+}
+
+message IntervalSchedule {
+  int32 days = 1;
+  int64 seconds = 2;
+}
+
+enum Mode {
+  FIXED_YEAR = 0;
+  FIXED_MONTH = 1;
+  INTERVAL_DAY = 2;
+  INTERVAL_SECOND = 3;
+}
+
+enum Type {
+  DEFAULT = 0;
+  DEPOSIT = 1;
+}
+
+message AddRuleResponse {
+  bool status = 1;
+  string rule_id = 2;
+}

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "ru.steqa.grpc";
+option java_outer_classname = "ApiServiceProto";
+option java_multiple_files = true;
+
+service ApiService {
+  rpc AddTransaction(AddTransactionRequest) returns (AddTransactionResponse);
+}
+
+message AddTransactionRequest {
+  int64 user_id = 1;
+  int64 transaction_id = 2;
+}
+
+message AddTransactionResponse {
+  bool status = 1;
+}
