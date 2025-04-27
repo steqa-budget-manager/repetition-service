@@ -1,0 +1,30 @@
+grpc:
+  server:
+    port: 9595
+    security:
+      enabled: false
+  client:
+    service:
+      address: localhost:9090
+      negotiation-type: plaintext
+
+spring:
+  application:
+    name: repetition-service
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      database: budget_manager
+      password: mongo
+      username: mongo
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: rabbit
+    password: rabbit
+    task-queue: task-queue
+    custom-exchange: delayed-exchange
