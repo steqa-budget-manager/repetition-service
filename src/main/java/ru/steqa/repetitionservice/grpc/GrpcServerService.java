@@ -6,6 +6,7 @@ import ru.steqa.grpc.*;
 import ru.steqa.repetitionservice.scheme.rabbit.RepetitionMode;
 import ru.steqa.repetitionservice.scheme.rabbit.TransactionType;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedMonthRepetition;
+import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedYearRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalDayRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalSecondRepetition;
 import ru.steqa.repetitionservice.service.IRepetitionRuleService;
@@ -69,6 +70,20 @@ public class GrpcServerService extends RepetitionServiceGrpc.RepetitionServiceIm
             );
 
             FixedMonthRepetition repetition = repetitionRuleService.addFixedMonthRepetitionRule(fixedMonthRepetition);
+            addedRuleId = repetition.id;
+
+            taskProducer.sendTaskAtTime(repetition.id, nextExecution);
+        } else if (mode.equals(RepetitionMode.FIXED_YEAR.name())) {
+            FixedYearRepetition fixedYearRepetition = new FixedYearRepetition(
+                    userId,
+                    transactionId,
+                    transactionType,
+                    nextExecution,
+                    request.getFixed().getDay(),
+                    request.getFixed().getMonth()
+            );
+
+            FixedYearRepetition repetition = repetitionRuleService.addFixedYearRepetitionRule(fixedYearRepetition);
             addedRuleId = repetition.id;
 
             taskProducer.sendTaskAtTime(repetition.id, nextExecution);

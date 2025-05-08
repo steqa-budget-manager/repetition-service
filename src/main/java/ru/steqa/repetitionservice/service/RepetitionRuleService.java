@@ -5,6 +5,7 @@ import ru.steqa.repetitionservice.exception.RepetitionRuleNotFound;
 import ru.steqa.repetitionservice.repository.IRepetitionRuleRepository;
 import ru.steqa.repetitionservice.scheme.rabbit.BaseRepetitionRule;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedMonthRepetition;
+import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedYearRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalDayRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalSecondRepetition;
 
@@ -30,6 +31,11 @@ public class RepetitionRuleService implements IRepetitionRuleService {
 
     @Override
     public FixedMonthRepetition addFixedMonthRepetitionRule(FixedMonthRepetition repetition) {
+        return repetitionRuleRepository.save(repetition);
+    }
+
+    @Override
+    public FixedYearRepetition addFixedYearRepetitionRule(FixedYearRepetition repetition) {
         return repetitionRuleRepository.save(repetition);
     }
 
