@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.steqa.repetitionservice.exception.RepetitionRuleNotFound;
 import ru.steqa.repetitionservice.repository.IRepetitionRuleRepository;
 import ru.steqa.repetitionservice.scheme.rabbit.BaseRepetitionRule;
+import ru.steqa.repetitionservice.scheme.rabbit.repetition.FixedMonthRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalDayRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalSecondRepetition;
 
@@ -18,13 +19,18 @@ public class RepetitionRuleService implements IRepetitionRuleService {
     }
 
     @Override
-    public IntervalSecondRepetition addIntervalSecondRepetitionRule(IntervalSecondRepetition interval) {
-        return repetitionRuleRepository.save(interval);
+    public IntervalSecondRepetition addIntervalSecondRepetitionRule(IntervalSecondRepetition repetition) {
+        return repetitionRuleRepository.save(repetition);
     }
 
     @Override
-    public IntervalDayRepetition addIntervalDayRepetitionRule(IntervalDayRepetition interval) {
-        return repetitionRuleRepository.save(interval);
+    public IntervalDayRepetition addIntervalDayRepetitionRule(IntervalDayRepetition repetition) {
+        return repetitionRuleRepository.save(repetition);
+    }
+
+    @Override
+    public FixedMonthRepetition addFixedMonthRepetitionRule(FixedMonthRepetition repetition) {
+        return repetitionRuleRepository.save(repetition);
     }
 
     @Override public BaseRepetitionRule getRepetitionRuleById(String id) {
