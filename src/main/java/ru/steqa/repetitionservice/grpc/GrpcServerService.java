@@ -5,6 +5,7 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import ru.steqa.grpc.*;
 import ru.steqa.repetitionservice.scheme.rabbit.RepetitionMode;
 import ru.steqa.repetitionservice.scheme.rabbit.TransactionType;
+import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalDayRepetition;
 import ru.steqa.repetitionservice.scheme.rabbit.repetition.IntervalSecondRepetition;
 import ru.steqa.repetitionservice.service.IRepetitionRuleService;
 import ru.steqa.repetitionservice.utility.TaskProducer;
@@ -41,7 +42,19 @@ public class GrpcServerService extends RepetitionServiceGrpc.RepetitionServiceIm
                     nextExecution,
                     request.getInterval().getSeconds()
             );
-            IntervalSecondRepetition repetition = repetitionRuleService.addIntervalSecondsRepetitionRule(intervalSecondRepetition);
+            IntervalSecondRepetition repetition = repetitionRuleService.addIntervalSecondRepetitionRule(intervalSecondRepetition);
+            addedRuleId = repetition.id;
+
+            taskProducer.sendTaskAtTime(repetition.id, nextExecution);
+        } else if (mode.equals(RepetitionMode.INTERVAL_DAY.name())) {
+            IntervalDayRepetition intervalDayRepetition = new IntervalDayRepetition(
+                    userId,
+                    transactionId,
+                    transactionType,
+                    nextExecution,
+                    request.getInterval().getDays()
+            );
+            IntervalDayRepetition repetition = repetitionRuleService.addIntervalDayRepetitionRule(intervalDayRepetition);
             addedRuleId = repetition.id;
 
             taskProducer.sendTaskAtTime(repetition.id, nextExecution);
