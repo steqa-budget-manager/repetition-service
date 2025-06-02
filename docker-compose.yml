@@ -1,6 +1,6 @@
 version: "3.8"
 
-name: budget-manager-api
+name: budget-manager
 
 services:
   service:
@@ -9,7 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5555:5555"
+      - "6666:6666"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
