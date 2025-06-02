@@ -3,6 +3,18 @@ version: "3.8"
 name: budget-manager-api
 
 services:
+  service:
+    container_name: ${COMPOSE_PROJECT_NAME}-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - mongodb
+      - rabbitmq
   mongodb:
     container_name: ${COMPOSE_PROJECT_NAME}-mongodb
     image: mongo:6-jammy
