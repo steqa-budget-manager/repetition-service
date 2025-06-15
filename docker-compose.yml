@@ -9,35 +9,32 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "6666:6666"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       - mongodb
       - rabbitmq
+    env_file:
+      - .env
   mongodb:
     container_name: ${COMPOSE_PROJECT_NAME}-mongodb
     image: mongo:6-jammy
     restart: unless-stopped
     ports:
-      - "127.0.0.1:27017:27017"
+      - "127.0.0.1:${SPRING_DATA_MONGODB_PORT}:27017"
     volumes:
       - mongodb_data:/data/db
-    environment:
-      - MONGO_INITDB_DATABASE=budget_manager
-      - MONGO_INITDB_ROOT_USERNAME=mongo
-      - MONGO_INITDB_ROOT_PASSWORD=mongo
+    env_file:
+      - .env
   rabbitmq:
     image: heidiks/rabbitmq-delayed-message-exchange:3.11.28-management
     container_name: ${COMPOSE_PROJECT_NAME}-rabbitmq
     ports:
       - "15672:15672"
-      - "5672:5672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=rabbit
-      - RABBITMQ_DEFAULT_PASS=rabbit
+      - "${SPRING_DATA_RABBITMQ_PORT}:5672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    env_file:
+      - .env
 
 volumes:
   mongodb_data:
